@@ -1,0 +1,42 @@
+pipeline {
+    agent {
+        label env.JENKINS_NODES
+    }
+    stages{
+        stage("Docker deploy") {
+            environment {
+                //Project
+                PROJECT = "greenpeace_colombia-interfaz-payu"
+            }
+            steps {
+              configFileProvider([configFile(fileId: "${env.PROJECT}" + '_' + "${env.AMBIENT}", targetLocation: '.env', variable: 'env_file')]) {
+                sh '''
+                  echo $AMBIENT
+                  echo $PROJECT
+
+                  project_name="${PROJECT}_${AMBIENT}"
+
+                  echo $project_name
+
+                  echo "Building project: "
+                  docker-compose --env-file "$(pwd)/.env" --file docker-compose-server.yml --project-name "$project_name" up -d --build
+                '''
+              }
+            }
+            post {
+                failure {
+                    emailext subject: '${JOB_BASE_NAME} - Build ${BUILD_DISPLAY_NAME} - Docker build failure', body: '${DEFAULT_CONTENT}', to: env.RCP_FAILURE
+                }
+            }
+        }
+    }
+    post{
+        success {
+            emailext subject: '${DEFAULT_SUBJECT}', body: '${DEFAULT_CONTENT}', to: env.RCP_SUCCESS
+        }
+        failure {
+            // Notify on failure
+            emailext subject: '${DEFAULT_SUBJECT}', body: '${DEFAULT_CONTENT}', to: env.RCP_FAILURE
+        }
+    }
+}

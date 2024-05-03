@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"ms-vscode-remote.remote-wsl",
+		"ms-azuretools.vscode-docker",
+		"sonarsource.sonarlint-vscode",
+		"dotenv.dotenv-vscode"
+	]
+}
