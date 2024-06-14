@@ -7,13 +7,10 @@ import { errorEmailRecipient } from '@/modules/scheduled_app/email/errorEmailTem
 
 export function validate<T>(dtoClass: any, skipMissingProperties = false, excludeExtraneousValues = true) {
   return function (req: express.Request, res: express.Response, next: NextFunction) {
-      console.log('VALIDATE (1)')
       const output: any = plainToInstance(dtoClass, req.body, { excludeExtraneousValues, exposeUnsetFields: false });
       classValidate(output, { skipMissingProperties })
       .then((errors: ValidationError[]) => {
-        console.log('VALIDATE (2)')
         if (errors.length > 0) {
-          console.log('VALIDATE (2.1)')
             let errorsObject = errorFormatter(errors);
             const errorDto = new ErrorDto({
               messages: ['Request validation errors.'],
@@ -22,14 +19,11 @@ export function validate<T>(dtoClass: any, skipMissingProperties = false, exclud
             res.status(StatusCodes.BAD_REQUEST).send(errorDto);
             return;
           } else {
-            console.log('VALIDATE (2.2)')
             res.locals.validatedBody = output;
             next();
           }
       })
       .catch((error: any) => {
-        console.log('Error', error);
-        console.log('VALIDATE (3)')
         res.status(StatusCodes.BAD_REQUEST).send({
           messages: ['Undefined error'],
           validationError: {},
@@ -39,14 +33,9 @@ export function validate<T>(dtoClass: any, skipMissingProperties = false, exclud
 };
 
 function errorFormatter(errors: ValidationError[], resultObject: any = {}): any {
-  console.log('Errors', errorEmailRecipient)
-  console.log('ResultObj', errorEmailRecipient)
   errors.forEach((error: ValidationError) => {
-    console.log("Error", error)
     if(!error?.constraints && error?.children?.length) {  // Tiene hijos
-      console.log("Error (1)")
       if(error.children.length > 0) { // Es array
-        console.log("Error (2)")
         resultObject[error.property] = [];
         error.children.forEach(arrayError => {
           console.log("arrayError", arrayError)

@@ -37,7 +37,7 @@ class TransaccionService {
         createLog(transaccion.get("id"), LogsEvents.TRANSACCION_CREADA_CORRECTAMENTE);
 
         const dataLog = {...data};
-        dataLog.cvv = 0;
+        dataLog.cvv = '0';
         dataLog.numero_tarjeta = 0;
         createLog(transaccion.get("id"), LogsEvents.LOG_INPUT, JSON.stringify(dataLog));
         return transaccion;

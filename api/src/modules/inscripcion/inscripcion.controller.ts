@@ -35,27 +35,19 @@ export class InscripcionController {
     next: NextFunction
   ): Promise<void> {
     try {
-      console.log("requestData (1)", res.locals.validatedBody);
       const requestData: InscripcionDTO = res.locals.validatedBody;
-      console.log("requestData (2)", res.locals.validatedBody);
+
       await this.validateTarjeta(requestData, res);
       requestData.numero_documento_tarjetahabiente = requestData.numero_documento_tarjetahabiente.replace(/\./g, "");
       requestData.numero_documento_cliente = requestData.numero_documento_cliente.replace(/\./g, "");
-      console.log("(3)");
       
       const deviceData = this.getDeviceData(req);
-      console.log("(4)");
       const cliente = await this.cliente_service.findOrCreate(requestData);
-      console.log("(5)");
       
       const transaccion = await this.transaccion_service.create_from_inscripcion(requestData, cliente.id);
-      console.log("(6)");
-      
       const token_tarjeta = await this.tokenizar_tarjeta(requestData, cliente, transaccion);
-      console.log("(7)");
       
       const transaccion_payu = await this.enviar_transaccion_payu(requestData, token_tarjeta, transaccion, cliente, deviceData);
-      console.log("(8)");
       
       if(transaccion_payu.code === "SUCCESS" && transaccion_payu.transactionResponse.responseCode === "APPROVED") {
         const staging = await this.salesforce_service.create_staging(requestData, transaccion, cliente, transaccion_payu);
