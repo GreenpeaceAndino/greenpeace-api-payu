@@ -191,15 +191,14 @@ class InscripcionRequestDTO {
   @Matches(/^[0-9]{4}\/(0[1-9]|1[0-2])$/, {message: 'Fecha de vencimiento de la tarjeta inválida.'})
   @Expose()
   public fecha_vencimiento_tarjeta: string;
-  
+
   @ValidateIf((o) => o.metodo_pago != PaymentMethodEnum.PSE)
   @IsDefined({message: 'Código de seguridad inválido.'})
   @IsNotEmpty({message: 'Código de seguridad inválido.'})
-  @IsNumber({}, {message: 'Código de seguridad inválido.'})
-  @Max(9999, {message: 'Código de seguridad inválido.'})
-  @Min(100, {message: 'Código de seguridad inválido.'})
+  @MinLength(3)
+  @MaxLength(4)
   @Expose()
-  public cvv: number;
+  public cvv: string;
   
   @ValidateIf((o) => o.metodo_pago === PaymentMethodEnum.PSE)
   @IsDefined({message: 'Banco inválido.'})
